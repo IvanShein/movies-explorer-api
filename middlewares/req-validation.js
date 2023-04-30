@@ -10,42 +10,37 @@ module.exports.isValidLogin = celebrate({
 
 module.exports.isValidCreateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(REGEXP_URL),
+    name: Joi.string().min(2).max(30).required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
 });
 
-module.exports.isValidCreateCard = celebrate({
+module.exports.isValidCreateMovie = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(REGEXP_URL),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().pattern(REGEXP_URL),
+    trailerLink: Joi.string().required().pattern(REGEXP_URL),
+    thumbnail: Joi.string().required().pattern(REGEXP_URL),
+    movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }),
 });
 
-module.exports.isValidCardId = celebrate({
+module.exports.isValidMovieId = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().hex().length(24),
   }),
 });
 
-module.exports.isValidGetUserById = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required().hex().length(24),
-  }),
-});
-
 module.exports.isValidUpdateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
-  }),
-});
-
-module.exports.isValidUpdateAvatar = celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(REGEXP_URL),
+    name: Joi.string().min(2).max(30).required(),
+    email: Joi.string().email().required(),
   }),
 });
