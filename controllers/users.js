@@ -9,31 +9,6 @@ const ConflictError = require('../errors/conflict-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const getAllUsers = (req, res, next) => {
-  Users.find({})
-    .then((users) => res.send(users))
-    .catch(next);
-};
-
-const getUserById = (req, res, next) => {
-  const { userId } = req.params;
-  Users.findById(userId)
-    .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Некорректный запрос по id, пользователь не найден'));
-      } else {
-        next(err);
-      }
-    });
-};
-
 const getCurrentUser = (req, res, next) => {
   Users.findById(req.user._id)
     .then((user) => {
@@ -48,19 +23,17 @@ const getCurrentUser = (req, res, next) => {
 
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    name, email, password,
   } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => {
       Users.create({
-        name, about, avatar, email, password: hash,
+        name, email, password: hash,
       })
         .then((user) => {
           res.status(201).send({
             _id: user._id,
             name: user.name,
-            about: user.about,
-            avatar: user.avatar,
             email: user.email,
           });
         })
@@ -77,8 +50,8 @@ const createUser = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { name, about } = req.body;
-  Users.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+  const { name, email } = req.body;
+  Users.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -89,25 +62,6 @@ const updateUser = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  Users.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
       } else {
         next(err);
       }
@@ -129,5 +83,5 @@ const login = (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers, getUserById, createUser, updateUser, updateAvatar, login, getCurrentUser,
+  createUser, updateUser, login, getCurrentUser,
 };

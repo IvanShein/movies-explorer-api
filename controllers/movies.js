@@ -4,90 +4,49 @@ const BadRequestError = require('../errors/bad-request-err');
 const ForbiddenError = require('../errors/forbidden-err');
 const NotFoundError = require('../errors/not-found-err');
 
-const getAllCards = (req, res, next) => {
-  Cards.find({})
-    .populate(['owner', 'likes'])
-    .then((cards) => res.send(cards))
+const getAllMovies = (req, res, next) => {
+  Movies.find({ owner: req.user._id.toString() })
+    .populate(['owner'])
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
-const createCard = (req, res, next) => {
-  const { name, link } = req.body;
-  Cards.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+const createMovie = (req, res, next) => {
+  const {
+    country, director, duration, year, description, image,
+    trailer, nameRU, nameEN, thumbnail, movieId
+  } = req.body;
+  Movies.create({
+    country, director, duration, year, description, image,
+    trailer, nameRU, nameEN, thumbnail, movieId,
+    owner: req.user._id
+  })
+    .then((movie) => res.status(201).send(movie))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new NotFoundError('Переданы некорректные данные при создании карточки'));
+        next(new NotFoundError('Переданы некорректные данные при добавлении фильма'));
       } else {
         next(err);
       }
     });
 };
 
-const deleteCardById = (req, res, next) => {
-  const { cardId } = req.params;
-  Cards.findById(cardId)
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      } else if (req.user._id === card.owner.toString()) {
-        return card.deleteOne()
-          .then(() => res.send({ data: card }));
+const deleteMovieById = (req, res, next) => {
+  const { deletedMovieId } = req.params;
+  Movies.findById(deletedMovieId)
+    .then((movie) => {
+      if (!movie) {
+        throw new NotFoundError('Фильм с указанным _id не найден');
+      } else if (req.user._id === movie.owner.toString()) {
+        return movie.deleteOne()
+          .then(() => res.send({ data: movie }));
       } else {
-        throw new ForbiddenError('Нет прав на удаление карточки, созданой другим пользователем');
+        throw new ForbiddenError('Нет прав на удаление фильма, добавленного другим пользователем');
       }
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Карточка с указанным _id не найдена'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const putCardLike = (req, res, next) => {
-  const { cardId } = req.params;
-  Cards.findByIdAndUpdate(
-    cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-    .populate(['owner', 'likes'])
-    .then((card) => {
-      if (card) {
-        res.send(card);
-      } else {
-        throw new NotFoundError('Передан несуществующий_id карточки');
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const deleteCardLike = (req, res, next) => {
-  const { cardId } = req.params;
-  Cards.findByIdAndUpdate(
-    cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-    .populate(['owner', 'likes'])
-    .then((card) => {
-      if (card) {
-        res.send(card);
-      } else {
-        throw new NotFoundError('Передан несуществующий_id карточки');
-      }
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Переданы некорректные данные для снятия лайка'));
+        next(new BadRequestError('Фильм с указанным _id не найден'));
       } else {
         next(err);
       }
@@ -95,5 +54,5 @@ const deleteCardLike = (req, res, next) => {
 };
 
 module.exports = {
-  getAllCards, createCard, deleteCardById, putCardLike, deleteCardLike,
+  getAllMovies, createMovie, deleteMovieById,
 };

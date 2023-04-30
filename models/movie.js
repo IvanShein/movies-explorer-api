@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const regexpUrl = require('../utils/constants');
+const REGEXP_URL = require('../utils/constants');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -26,7 +26,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (value) => regexpUrl.test(value),
+      validator: (value) => REGEXP_URL.test(value),
       message: 'Некорректный формат URL',
     },
   },
@@ -34,7 +34,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (value) => regexpUrl.test(value),
+      validator: (value) => REGEXP_URL.test(value),
       message: 'Некорректный формат URL',
     },
   },
@@ -42,7 +42,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (value) => regexpUrl.test(value),
+      validator: (value) => REGEXP_URL.test(value),
       message: 'Некорректный формат URL',
     },
   },
