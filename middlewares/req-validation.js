@@ -34,7 +34,7 @@ module.exports.isValidCreateMovie = celebrate({
 
 module.exports.isValidMovieId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().hex().length(24),
+    deletedMovieId: Joi.string().required().hex().length(24),
   }),
 });
 
