@@ -60,7 +60,9 @@ const updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже зарегистрирован'));
+      } else if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       } else {
         next(err);
